@@ -36,16 +36,17 @@ public class CLIMenu {
     }
 
     private void showOptions(){
-        out.println("^^^^ ^^^^ ^^^^ ^^^^ ^^^^ ^^^^");
-        out.println("^^^^ Student Manager Menu ^^^^");
-        out.println("^^^^ ^^^^ ^^^^ ^^^^ ^^^^ ^^^^");
-        out.println("1) Provide file path for 50d word embeddings dataset");
+        out.println(Colours.ANSI_PURPLE + "^^^^\t^^^^\t^^^^\t^^^^\t^^^^\t^^^^");
+        out.println("\t\t\tWord Similarity Search\t\t");
+        out.println("^^^^\t^^^^\t^^^^\t^^^^\t^^^^\t^^^^");
+        out.println(Colours.ANSI_BLUE + "1) Provide file path for 50d word embeddings dataset");
         out.println("2) Provide file path for output (default /out.txt)");
         out.println("3) Select similarity search algorithm");
         out.println("4) Change number of words to show in similarity ranking");
-        out.println("5) Enable/Disable weight details");
-        out.println("6) Begin word similarity search");
-        out.println("7) Quit");
+        out.println(Colours.ANSI_YELLOW +"5) Enable/Disable weight details");
+        out.println(Colours.ANSI_GREEN + "6) Begin word similarity search");
+        out.println(Colours.ANSI_RED +  "7) Quit" + Colours.ANSI_RESET);
         out.println("Select an option [1-7]");
     }
 }
+
