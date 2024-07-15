@@ -8,13 +8,35 @@ import static java.lang.System.out;
 
 public class CLIMenu {
     private enum AlgorithmOptions{
-        // apply strategy pattern
+        /* apply strategy pattern - call on specific functions when needed.
+        Call the required algorithm from different class */
         COSINE,
         DOT,
         EUCLIDEAN
 
 
     }
+
+    public enum LogLevel{
+        // specify your fields here
+        INFO ("Information. "),
+        WARN ("Warning. Check Before Continuing. "),
+        ERROR ( "Error. Check immediately. ");
+
+        // specify field values
+        private final String message;
+
+        // constructor used to set field values
+        LogLevel(String message){
+            this.message = message;
+        }
+
+        // then we create methods to access fields
+        public String getMessage(){
+            return message;
+        }
+    }
+
     private String wordWeightsLocation;
     private String outputLocation = "./out.txt";
     private int numberOfResults = 10;
@@ -22,6 +44,10 @@ public class CLIMenu {
     private final Scanner s;
     private boolean running = true;
     private int topWords = 10;
+
+    // Word list and weight list used for calculations and what not
+    private String[] wordList = null;
+    private float[][] weightList = null;
     public CLIMenu (){
         s = new Scanner(in);
     }
@@ -36,7 +62,7 @@ public class CLIMenu {
                 case 3 -> out.println("option 3");
                 case 4 -> out.println("option 4. Top words is: " + topWords);
                 case 5 -> setShowWeights(!showWeights);
-                case 6 -> out.println("option 6");
+                case 6 -> beginWordSimilaritySearch();
                 case 7 -> {
                     running = false;
                     out.println("Existing program...");
@@ -50,6 +76,15 @@ public class CLIMenu {
     private void setShowWeights(boolean showWeights) {
         this.showWeights = showWeights;
         out.println("Show weight details: " + showWeights + "\n");
+    }
+
+    private void beginWordSimilaritySearch(){
+        if (wordList == null || weightList == null){
+            out.println(LogLevel.WARN.getMessage() + "wordList / weightList is not valid. Try again \n");
+        } else{
+            out.println(LogLevel.INFO.getMessage() + "wordList and weightList loaded correctly \n");
+
+        }
     }
 
     private void showOptions(){
