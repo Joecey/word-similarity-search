@@ -1,18 +1,17 @@
 package ie.atu.sw;
 
 public class LoadDataset {
-    // FOR TESTING PURPOSES
-    private final String TEST_FILE = "";
-    private LoadDataset(){};
+    private LoadDataset(){}
 
-    public static String[] CreateWordList(){
-        return null;
-    }
-    public static float[][] CreateWeightList(){
+    public static String[] createWordArray(String weightsFilePath){
+        System.out.println("Word array: " + weightsFilePath);
         return null;
     }
 
-    public static void main(String[] args) {
-        System.out.println("Testing...");
+    public static double[][] createWeightMatrix(String weightsFilePath){
+        System.out.println("Weight matrix: " + weightsFilePath);
+        return null;
     }
+
+
 }

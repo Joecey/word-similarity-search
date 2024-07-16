@@ -1,9 +1,9 @@
 package ie.atu.sw;
 
+import java.io.File;
 import java.util.Scanner;
 
-import static java.lang.System.in;
-import static java.lang.System.out;
+import static java.lang.System.*;
 
 
 public class CLIMenu {
@@ -37,7 +37,6 @@ public class CLIMenu {
         }
     }
 
-    private String wordWeightsLocation;
     private String outputLocation = "./out.txt";
     private int numberOfResults = 10;
     private boolean showWeights = false;
@@ -47,7 +46,7 @@ public class CLIMenu {
 
     // Word list and weight list used for calculations and what not
     private String[] wordList = null;
-    private float[][] weightList = null;
+    private float[][] weightMatrix = null;
     public CLIMenu (){
         s = new Scanner(in);
     }
@@ -57,7 +56,7 @@ public class CLIMenu {
             showOptions();
             int choice = s.nextInt();
             switch (choice) {
-                case 1 -> out.println("option 1");
+                case 1 -> loadWeightDataset();
                 case 2 -> out.println("option 2");
                 case 3 -> out.println("option 3");
                 case 4 -> out.println("option 4. Top words is: " + topWords);
@@ -73,14 +72,48 @@ public class CLIMenu {
         }while(running);
     }
 
+    public void setWordList(String[] wordList) {
+        this.wordList = wordList;
+    }
+
+    public void setWeightMatrix(float[][] weightMatrix) {
+        this.weightMatrix = weightMatrix;
+    }
+
+    private void loadWeightDataset(){
+        // TODO: Create exception handling here and os file check
+        try{
+            Scanner inputFilePath = new Scanner(in);
+            out.print("Provide relative file path to 50d word dataset: ");
+            String filePath = inputFilePath.nextLine();
+
+            // Now verify if the file exists
+            File checkFile = new File(filePath);
+            if (checkFile.exists()){
+                LoadDataset.createWordArray(filePath);
+                LoadDataset.createWeightMatrix(filePath);
+                out.println(LogLevel.INFO.getMessage() + "Dataset weights have been loaded successfully! \n");
+            } else{
+                setWordList(null);
+                setWeightMatrix(null);
+                out.println(LogLevel.WARN.getMessage() + "This file " + filePath + " does not exist! Please try again \n");
+
+            }
+
+        } catch (Exception err){
+            out.println(LogLevel.ERROR.getMessage() + "An issue has occurred while setting file: "+ err);
+        }
+
+    }
+
     private void setShowWeights(boolean showWeights) {
         this.showWeights = showWeights;
         out.println("Show weight details: " + showWeights + "\n");
     }
 
     private void beginWordSimilaritySearch(){
-        if (wordList == null || weightList == null){
-            out.println(LogLevel.WARN.getMessage() + "wordList / weightList is not valid. Try again \n");
+        if (wordList == null || weightMatrix == null){
+            out.println(LogLevel.WARN.getMessage() + "wordList / weightList is not valid. Load dataset using option 1) \n");
         } else{
             out.println(LogLevel.INFO.getMessage() + "wordList and weightList loaded correctly \n");
 
@@ -98,7 +131,7 @@ public class CLIMenu {
         out.println(Colours.ANSI_YELLOW +"5) Enable/Disable weight details ("+showWeights+")");
         out.println(Colours.ANSI_GREEN + "6) Begin word similarity search");
         out.println(Colours.ANSI_RED +  "7) Quit" + Colours.ANSI_RESET);
-        out.println("Select an option [1-7]");
+        out.print("Select an option [1-7]: ");
     }
 }
 
