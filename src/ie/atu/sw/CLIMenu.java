@@ -44,11 +44,15 @@ public class CLIMenu {
     private boolean running = true;
     private int topWords = 10;
 
-    // Word list and weight list used for calculations and what not
-    private String[] wordList = null;
-    private float[][] weightMatrix = null;
+    // Set ModelWeights as an object variable which we can track
+    private ModelWeights currentModel = null;
+
     public CLIMenu (){
         s = new Scanner(in);
+    }
+
+    public void setCurrentModel(ModelWeights currentModel) {
+        this.currentModel = currentModel;
     }
 
     public void start(){
@@ -72,14 +76,6 @@ public class CLIMenu {
         }while(running);
     }
 
-    public void setWordList(String[] wordList) {
-        this.wordList = wordList;
-    }
-
-    public void setWeightMatrix(float[][] weightMatrix) {
-        this.weightMatrix = weightMatrix;
-    }
-
     private void loadWeightDataset(){
         // TODO: Create exception handling here and os file check
         try{
@@ -90,13 +86,11 @@ public class CLIMenu {
             // Now verify if the file exists
             File checkFile = new File(filePath);
             if (checkFile.exists()){
-                LoadDataset.createWordArray(filePath);
-                LoadDataset.createWeightMatrix(filePath);
+                setCurrentModel(new ModelWeights(filePath));    // set current model with new ModelWeights object
                 out.println(LogLevel.INFO.getMessage() + "Dataset weights have been loaded successfully! \n");
             } else{
-                setWordList(null);
-                setWeightMatrix(null);
                 out.println(LogLevel.WARN.getMessage() + "This file " + filePath + " does not exist! Please try again \n");
+                setCurrentModel(null);
 
             }
 
@@ -112,11 +106,14 @@ public class CLIMenu {
     }
 
     private void beginWordSimilaritySearch(){
-        if (wordList == null || weightMatrix == null){
-            out.println(LogLevel.WARN.getMessage() + "wordList / weightList is not valid. Load dataset using option 1) \n");
-        } else{
-            out.println(LogLevel.INFO.getMessage() + "wordList and weightList loaded correctly \n");
-
+        if (currentModel == null){
+            out.println("There is no dataset loaded. Use option 1) to load an appropriate file");
+        }else{
+            if (!currentModel.verifyWeights()){
+                out.println(LogLevel.WARN.getMessage() + "wordList / weightList is not valid. Load dataset using option 1) \n");
+            }else{
+                out.println(LogLevel.INFO.getMessage() + "wordList and weightList loaded correctly \n");
+            }
         }
     }
 
