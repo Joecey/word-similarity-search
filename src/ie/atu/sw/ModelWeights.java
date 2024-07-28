@@ -40,10 +40,7 @@ public class ModelWeights {
                 String currentLine = null;
                 int count = 0;
                 while ((currentLine = br.readLine()) != null) {
-                    if (count == 0) {
-                        processLine(currentLine);
-
-                    }
+                    processLine(currentLine);
                     count++;
                 }
                 br.close();
@@ -59,7 +56,7 @@ public class ModelWeights {
         try {
             String trimmed = currentLineBuffer.replaceAll("\\s+", "");
             String[] trimmedSplit = trimmed.split(",");
-            System.out.println(trimmedSplit.length);
+            System.out.println(trimmedSplit.length); // TODO use this to check that parsed array is correct
             appendWordArray(trimmedSplit);
             appendWeightMatrix(trimmedSplit);
         } catch (Exception err) {
