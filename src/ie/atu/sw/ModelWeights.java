@@ -9,8 +9,8 @@ import java.util.Arrays;
 public class ModelWeights {
 
     // load instance variables - this is where we will be calling our ModelWeights
-    private String[] wordList = null;
-    private double[][] weightMatrix = null;
+    private String[] wordList;
+    private double[][] weightMatrix;
 
     public void setWordList(String[] wordList) {
         this.wordList = wordList;
@@ -44,7 +44,10 @@ public class ModelWeights {
                     count++;
                 }
                 br.close();
-                System.out.println(count + " words have been successfully loaded");
+                if (wordList != null){
+                    System.out.println(wordList.length);
+                    System.out.println(count + " words have been successfully loaded");
+                }
 
             } catch (Exception err) {
                 throw new Exception("[WARN]: There was an issue processing the file" + err);
@@ -56,7 +59,7 @@ public class ModelWeights {
         try {
             String trimmed = currentLineBuffer.replaceAll("\\s+", "");
             String[] trimmedSplit = trimmed.split(",");
-            System.out.println(trimmedSplit.length); // TODO use this to check that parsed array is correct
+//            System.out.println(trimmedSplit.length); // TODO use this to check that parsed array is correct
             appendWordArray(trimmedSplit);
             appendWeightMatrix(trimmedSplit);
         } catch (Exception err) {
@@ -66,11 +69,17 @@ public class ModelWeights {
     }
 
     private void appendWordArray(String[] currentLineArray) throws Exception {
-        System.out.println("Word array: " + currentLineArray[0]);
+        String[] newWordArray;
+        if (wordList == null){
+            newWordArray = new String[1];
+        }else{
+            newWordArray = Arrays.copyOf(wordList, wordList.length + 1);
+        }
+        newWordArray[newWordArray.length - 1] = currentLineArray[0];
+        setWordList(newWordArray);
     }
 
-    private void appendWeightMatrix(String[] currentLineArray) throws Exception {
-        System.out.println("Weight matrix: " + currentLineArray[1]);
-    }
+    private void appendWeightMatrix(String[] currentLineArray) throws Exception {}
+
 
 }
