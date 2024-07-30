@@ -83,6 +83,7 @@ public class CLIMenu {
     }
 
     private void showOptions() {
+        // TODO: Add option to show available words and do word count
         out.println();
         out.println(Colours.ANSI_PURPLE + "^^^^\t^^^^\t^^^^\t^^^^\t^^^^\t^^^^");
         out.println("\t\t\tWord Similarity Search\t\t");

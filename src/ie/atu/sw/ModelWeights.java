@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ModelWeights {
 
@@ -44,9 +45,14 @@ public class ModelWeights {
                     count++;
                 }
                 br.close();
-                if (wordList != null){
-                    System.out.println(wordList.length);
-                    System.out.println(count + " words have been successfully loaded");
+                if (wordList != null) {
+                    if (wordList.length != count) {
+                        setWordList(null);
+                        throw new Exception("Wordlist length does not match text file line size. Aborting...");
+                    } else {
+                        System.out.println(count + " words have been successfully loaded");
+                        System.out.println(weightMatrix.length + ' ' + weightMatrix[0].length);
+                    }
                 }
 
             } catch (Exception err) {
@@ -59,27 +65,64 @@ public class ModelWeights {
         try {
             String trimmed = currentLineBuffer.replaceAll("\\s+", "");
             String[] trimmedSplit = trimmed.split(",");
-//            System.out.println(trimmedSplit.length); // TODO use this to check that parsed array is correct
-            appendWordArray(trimmedSplit);
-            appendWeightMatrix(trimmedSplit);
+            String currentWord = trimmedSplit[0];
+            String[] currentWeights = new String[trimmedSplit.length - 1];  // -1 to account for length and [0] index
+
+            // doing this manually to show what ArrayCopyOf would do
+            for (int i = 1; i < trimmedSplit.length; i++) {
+                currentWeights[i - 1] = trimmedSplit[i];
+            }
+            appendWordArray(currentWord);
+            appendWeightMatrix(currentWeights);
         } catch (Exception err) {
             throw new Exception(err);
         }
 
     }
 
-    private void appendWordArray(String[] currentLineArray) throws Exception {
+    private void appendWordArray(String currentWord) {
         String[] newWordArray;
-        if (wordList == null){
+        if (wordList == null) {
             newWordArray = new String[1];
-        }else{
+        } else {
             newWordArray = Arrays.copyOf(wordList, wordList.length + 1);
         }
-        newWordArray[newWordArray.length - 1] = currentLineArray[0];
+        newWordArray[newWordArray.length - 1] = currentWord;
         setWordList(newWordArray);
     }
 
-    private void appendWeightMatrix(String[] currentLineArray) throws Exception {}
+    // TODO: this is very inefficient - need to fix this
+    // https://stackoverflow.com/questions/2068370/efficient-system-arraycopy-on-multidimensional-arrays
+    private void appendWeightMatrix(String[] currentWeights) {
+        double[][] newWeightMatrix;
+        double[] newWeightRow = new double[currentWeights.length];  // this should be 50, but we can make it dynamic
+
+        for (int weightIndex = 0; weightIndex < currentWeights.length; weightIndex++) {
+            String addDoubleTail = currentWeights[weightIndex] + 'd';
+            newWeightRow[weightIndex] = Double.parseDouble(addDoubleTail);
+        }
+
+        if (weightMatrix == null) {
+            newWeightMatrix = new double[1][currentWeights.length];
+        }else{
+            System.out.println(weightMatrix.length);
+            newWeightMatrix = new double[weightMatrix.length + 1][currentWeights.length];
+            for (int row = 0; row < weightMatrix.length; row++) {
+                newWeightMatrix[row] = weightMatrix[row].clone();
+            }
+        }
+        newWeightMatrix[newWeightMatrix.length - 1] = newWeightRow;
+        setWeightMatrix(newWeightMatrix);
+
+    }
+
+    public void showAvailableWords() {
+        for (String word : wordList
+        ) {
+            System.out.println(word);
+        }
+        System.out.println("There are " + wordList.length + " words in the dataset");
+    }
 
 
 }
