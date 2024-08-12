@@ -1,6 +1,5 @@
 package ie.atu.sw;
 
-import java.io.File;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -11,7 +10,33 @@ public class CLIMenu {
     private enum AlgorithmOptions {
         /* apply strategy pattern - call on specific functions when needed.
         Call the required algorithm from different class */
-        COSINE, DOT, EUCLIDEAN
+
+        /*
+         * here, we have implemented a Factory Design Pattern
+         * */
+        COSINE {
+            @Override
+            public double calculateSimilarity(double[] weightsA, double[] weightsB) {
+                return WeightComparison.CosineDistance(weightsA, weightsB);
+            }
+        }, DOT {
+            @Override
+
+            public double calculateSimilarity(double[] weightsA, double[] weightsB) {
+                return WeightComparison.DotProduct(weightsA, weightsB);
+            }
+        }, EUCLIDEAN {
+            @Override
+            public double calculateSimilarity(double[] weightsA, double[] weightsB) {
+                return WeightComparison.EuclideanDistance(weightsA, weightsB);
+            }
+        };
+
+        // !!! abstract here is used to implement corresponding enum type methods (in this case, calculateSimilarity(); )
+        // abstracts act as a template that needs to be added on to
+        // here, we say we need calculateSimilarity(), but it must be extended from our chosen enum type
+
+        public abstract double calculateSimilarity(double[] a, double[] b);
     }
 
     public enum LogLevel {
@@ -160,6 +185,10 @@ public class CLIMenu {
         } else {
 
             out.println(LogLevel.INFO.getMessage() + "wordList and weightList loaded correctly \n");
+            double[] a = {0.2};
+            double[] b = {0.3};
+            double g = AlgorithmOptions.COSINE.calculateSimilarity(a,b);
+            out.println(g);
 
         }
     }
