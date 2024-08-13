@@ -79,6 +79,7 @@ public class ModelWeights {
 
     }
 
+    // TODO: optimise this similar to appendWeightMatrix
     private void appendWordArray(String currentWord) {
         String[] newWordArray;
         if (wordList == null) {
@@ -90,8 +91,7 @@ public class ModelWeights {
         setWordList(newWordArray);
     }
 
-    // TODO: this is very inefficient - need to fix this
-    // https://stackoverflow.com/questions/2068370/efficient-system-arraycopy-on-multidimensional-arrays
+
     private void appendWeightMatrix(String[] currentWeights, int currentLineCount) {
         double[][] newWeightMatrix;
         double[] newWeightRow = new double[currentWeights.length];  // this should be 50, but we can make it dynamic
@@ -104,13 +104,13 @@ public class ModelWeights {
         // todo: make this a switch case for current line count?
         if (weightMatrix == null) {
             newWeightMatrix = new double[1][currentWeights.length];
-        }else{
+        } else {
             if (currentLineCount >= weightMatrix.length) {
                 newWeightMatrix = new double[weightMatrix.length * 2][currentWeights.length];
                 for (int row = 0; row < weightMatrix.length; row++) {
                     newWeightMatrix[row] = weightMatrix[row].clone();
                 }
-            } else{
+            } else {
                 newWeightMatrix = weightMatrix;
             }
         }
