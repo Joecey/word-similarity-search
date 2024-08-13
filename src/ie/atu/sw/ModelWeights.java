@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.Objects;
 
 public class ModelWeights {
 
@@ -40,8 +39,9 @@ public class ModelWeights {
                 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(modelFile)));
                 String currentLine = null;
                 int count = 0;
+                System.out.println("Loading dataset..." + Colours.ANSI_RED + "(This might take a few minutes)" + Colours.ANSI_RESET);
                 while ((currentLine = br.readLine()) != null) {
-                    processLine(currentLine);
+                    processLine(currentLine, count);
                     count++;
                 }
                 br.close();
@@ -51,7 +51,6 @@ public class ModelWeights {
                         throw new Exception("Wordlist length does not match text file line size. Aborting...");
                     } else {
                         System.out.println(count + " words have been successfully loaded");
-                        System.out.println(weightMatrix.length + ' ' + weightMatrix[0].length);
                     }
                 }
 
@@ -61,7 +60,7 @@ public class ModelWeights {
         }
     }
 
-    private void processLine(String currentLineBuffer) throws Exception {
+    private void processLine(String currentLineBuffer, int currentLineCount) throws Exception {
         try {
             String trimmed = currentLineBuffer.replaceAll("\\s+", "");
             String[] trimmedSplit = trimmed.split(",");
@@ -73,7 +72,7 @@ public class ModelWeights {
                 currentWeights[i - 1] = trimmedSplit[i];
             }
             appendWordArray(currentWord);
-            appendWeightMatrix(currentWeights);
+            appendWeightMatrix(currentWeights, currentLineCount);
         } catch (Exception err) {
             throw new Exception(err);
         }
@@ -93,7 +92,7 @@ public class ModelWeights {
 
     // TODO: this is very inefficient - need to fix this
     // https://stackoverflow.com/questions/2068370/efficient-system-arraycopy-on-multidimensional-arrays
-    private void appendWeightMatrix(String[] currentWeights) {
+    private void appendWeightMatrix(String[] currentWeights, int currentLineCount) {
         double[][] newWeightMatrix;
         double[] newWeightRow = new double[currentWeights.length];  // this should be 50, but we can make it dynamic
 
@@ -102,16 +101,20 @@ public class ModelWeights {
             newWeightRow[weightIndex] = Double.parseDouble(addDoubleTail);
         }
 
+        // todo: make this a switch case for current line count?
         if (weightMatrix == null) {
             newWeightMatrix = new double[1][currentWeights.length];
         }else{
-            System.out.println(weightMatrix.length);
-            newWeightMatrix = new double[weightMatrix.length + 1][currentWeights.length];
-            for (int row = 0; row < weightMatrix.length; row++) {
-                newWeightMatrix[row] = weightMatrix[row].clone();
+            if (currentLineCount >= weightMatrix.length) {
+                newWeightMatrix = new double[weightMatrix.length * 2][currentWeights.length];
+                for (int row = 0; row < weightMatrix.length; row++) {
+                    newWeightMatrix[row] = weightMatrix[row].clone();
+                }
+            } else{
+                newWeightMatrix = weightMatrix;
             }
         }
-        newWeightMatrix[newWeightMatrix.length - 1] = newWeightRow;
+        newWeightMatrix[currentLineCount] = newWeightRow;
         setWeightMatrix(newWeightMatrix);
 
     }

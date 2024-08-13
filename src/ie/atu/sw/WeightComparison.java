@@ -5,7 +5,18 @@ public class WeightComparison {
 
     public static double DotProduct(double[] weightsA, double[] weightsB ){
         System.out.println("Dot product...");
-        return 0.0;
+        /*
+        Parallel vectors = 1
+        Completely opposite vectors = -1
+        Perpendicular vectors = 0
+         */
+        double similarityScore = 0.0d;
+
+        for (int weight = 0; weight < weightsA.length; weight++) {
+            similarityScore += (weightsA[weight] * weightsB[weight]);
+        }
+
+        return similarityScore;
     }
 
     public static double CosineDistance(double[] weightsA, double[] weightsB) {

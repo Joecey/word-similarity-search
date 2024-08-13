@@ -11,9 +11,6 @@ public class CLIMenu {
         /* apply strategy pattern - call on specific functions when needed.
         Call the required algorithm from different class */
 
-        /*
-         * here, we have implemented a Factory Design Pattern
-         * */
         COSINE {
             @Override
             public double calculateSimilarity(double[] weightsA, double[] weightsB) {
@@ -31,12 +28,10 @@ public class CLIMenu {
                 return WeightComparison.EuclideanDistance(weightsA, weightsB);
             }
         };
-
         // !!! abstract here is used to implement corresponding enum type methods (in this case, calculateSimilarity(); )
         // abstracts act as a template that needs to be added on to
         // here, we say we need calculateSimilarity(), but it must be extended from our chosen enum type
-
-        public abstract double calculateSimilarity(double[] a, double[] b);
+        abstract double calculateSimilarity(double[] a, double[] b);
     }
 
     public enum LogLevel {
@@ -179,15 +174,16 @@ public class CLIMenu {
     }
 
     private void beginWordSimilaritySearch() {
-        // TODO: Make this it's own class or new static class instead
+        // TODO: make new class to store calculations and top words
         if (currentModel == null) {
             out.println(LogLevel.WARN.getMessage() + "There is no dataset loaded. Use option 1) to load an appropriate file");
         } else {
 
             out.println(LogLevel.INFO.getMessage() + "wordList and weightList loaded correctly \n");
-            double[] a = {0.2};
-            double[] b = {0.3};
-            double g = AlgorithmOptions.COSINE.calculateSimilarity(a,b);
+            double[][] modelWeights = currentModel.getWeightMatrix();
+            double[] a = modelWeights[0];
+            double[] b = modelWeights[1];
+            double g = AlgorithmOptions.DOT.calculateSimilarity(a,b);
             out.println(g);
 
         }
