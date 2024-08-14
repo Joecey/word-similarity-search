@@ -11,27 +11,39 @@ public class CLIMenu {
         /* apply strategy pattern - call on specific functions when needed.
         Call the required algorithm from different class */
 
-        COSINE {
+        COSINE(Colours.ANSI_CYAN + "COSINE"+ Colours.ANSI_BLUE) {
             @Override
             public double calculateSimilarity(double[] weightsA, double[] weightsB) {
                 return WeightComparison.CosineDistance(weightsA, weightsB);
             }
-        }, DOT {
+        }, DOT(Colours.ANSI_YELLOW + "DOT" + Colours.ANSI_BLUE) {
             @Override
 
             public double calculateSimilarity(double[] weightsA, double[] weightsB) {
                 return WeightComparison.DotProduct(weightsA, weightsB);
             }
-        }, EUCLIDEAN {
+        }, EUCLIDEAN(Colours.ANSI_PURPLE + "EUCLIDEAN" + Colours.ANSI_BLUE) {
             @Override
             public double calculateSimilarity(double[] weightsA, double[] weightsB) {
                 return WeightComparison.EuclideanDistance(weightsA, weightsB);
             }
         };
+
+        private final String algoType;
+
+        AlgorithmOptions(String algoType) {
+            this.algoType = algoType;
+        }
+
+        public String getAlgoType() {
+            return algoType;
+        }
+
         // !!! abstract here is used to implement corresponding enum type methods (in this case, calculateSimilarity(); )
         // abstracts act as a template that needs to be added on to
         // here, we say we need calculateSimilarity(), but it must be extended from our chosen enum type
         abstract double calculateSimilarity(double[] a, double[] b);
+
     }
 
     public enum LogLevel {
@@ -59,6 +71,7 @@ public class CLIMenu {
 
     // Set ModelWeights as an object variable which we can track
     private ModelWeights currentModel = null;
+    private AlgorithmOptions currentAlgo = AlgorithmOptions.COSINE;
 
     public CLIMenu() {
     }
@@ -85,7 +98,7 @@ public class CLIMenu {
                 switch (choice) {
                     case 1 -> loadWeightDataset();
                     case 2 -> setNewOutputFile();
-                    case 3 -> out.println("option 3");
+                    case 3 -> cycleAlgoMethod();
                     case 4 -> updateTopWords();
                     case 5 -> setShowWeights(!showWeights);
                     case 6 -> beginWordSimilaritySearch();
@@ -110,7 +123,7 @@ public class CLIMenu {
         out.println("^^^^\t^^^^\t^^^^\t^^^^\t^^^^\t^^^^");
         out.println(Colours.ANSI_BLUE + "1) Provide file path for 50d word embeddings dataset");
         out.println("2) Provide file path for output (current location: " + outputLocation + ")");
-        out.println("3) Cycle similarity search algorithm (COSINE, DOT, EUCLIDEAN)");
+        out.println("3) Cycle similarity search algorithm (currently using " + currentAlgo.getAlgoType() + " algorithm)");
         out.println("4) Change number of words to show in similarity ranking (current amount: " + topWords + ")");
         out.println(Colours.ANSI_YELLOW + "5) Enable/Disable weight details (" + showWeights + ")");
         out.println(Colours.ANSI_GREEN + "6) Begin word similarity search");
@@ -155,6 +168,14 @@ public class CLIMenu {
 
     }
 
+    private void cycleAlgoMethod() {
+        switch (currentAlgo) {
+            case COSINE -> this.currentAlgo = AlgorithmOptions.DOT;
+            case DOT -> this.currentAlgo = AlgorithmOptions.EUCLIDEAN;
+            case EUCLIDEAN -> this.currentAlgo = AlgorithmOptions.COSINE;
+        }
+    }
+
     private void updateTopWords() {
         try {
             Scanner topWordsScanner = new Scanner(in);
@@ -182,8 +203,8 @@ public class CLIMenu {
             out.println(LogLevel.INFO.getMessage() + "wordList and weightList loaded correctly \n");
             double[][] modelWeights = currentModel.getWeightMatrix();
             double[] a = modelWeights[0];
-            double[] b = modelWeights[1];
-            double g = AlgorithmOptions.DOT.calculateSimilarity(a,b);
+            double[] b = modelWeights[0];
+            double g = currentAlgo.calculateSimilarity(a, b);
             out.println(g);
 
         }
