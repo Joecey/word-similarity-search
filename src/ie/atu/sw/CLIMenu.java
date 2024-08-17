@@ -11,21 +11,21 @@ public class CLIMenu {
         /* apply strategy pattern - call on specific functions when needed.
         Call the required algorithm from different class */
 
-        COSINE(Colours.ANSI_CYAN + "COSINE"+ Colours.ANSI_BLUE) {
+        COSINE(Colours.ANSI_CYAN + "COSINE" + Colours.ANSI_BLUE) {
             @Override
-            public double calculateSimilarity(double[] weightsA, double[] weightsB) {
-                return WeightComparison.CosineDistance(weightsA, weightsB);
+            public double calculateSimilarity(double[] targetWeight, double[] testWeight) {
+                return WeightComparison.CosineDistance(targetWeight, testWeight);
             }
         }, DOT(Colours.ANSI_YELLOW + "DOT" + Colours.ANSI_BLUE) {
             @Override
 
-            public double calculateSimilarity(double[] weightsA, double[] weightsB) {
-                return WeightComparison.DotProduct(weightsA, weightsB);
+            public double calculateSimilarity(double[] targetWeight, double[] testWeight) {
+                return WeightComparison.DotProduct(targetWeight, testWeight);
             }
         }, EUCLIDEAN(Colours.ANSI_PURPLE + "EUCLIDEAN" + Colours.ANSI_BLUE) {
             @Override
-            public double calculateSimilarity(double[] weightsA, double[] weightsB) {
-                return WeightComparison.EuclideanDistance(weightsA, weightsB);
+            public double calculateSimilarity(double[] targetWeight, double[] testWeight) {
+                return WeightComparison.EuclideanDistance(targetWeight, testWeight);
             }
         };
 
@@ -38,6 +38,7 @@ public class CLIMenu {
         public String getAlgoType() {
             return algoType;
         }
+
 
         // !!! abstract here is used to implement corresponding enum type methods (in this case, calculateSimilarity(); )
         // abstracts act as a template that needs to be added on to
@@ -68,6 +69,7 @@ public class CLIMenu {
     private boolean showWeights = false;
     private boolean running = true;
     private int topWords = 10;
+    private final int sentenceLimit = 10;
 
     // Set ModelWeights as an object variable which we can track
     private ModelWeights currentModel = null;
@@ -97,12 +99,19 @@ public class CLIMenu {
                 int choice = choiceScanner.nextInt();
                 switch (choice) {
                     case 1 -> loadWeightDataset();
-                    case 2 -> setNewOutputFile();
-                    case 3 -> cycleAlgoMethod();
-                    case 4 -> updateTopWords();
-                    case 5 -> setShowWeights(!showWeights);
-                    case 6 -> beginWordSimilaritySearch();
-                    case 7 -> {
+                    case 2 -> {
+                        if (currentModel != null) {
+                            currentModel.showAvailableWordsCount();
+                        } else {
+                            out.println("No model loaded. Try again!");
+                        }
+                    }
+                    case 3 -> setNewOutputFile();
+                    case 4 -> cycleAlgoMethod();
+                    case 5 -> updateTopWords();
+                    case 6 -> setShowWeights(!showWeights);
+                    case 7 -> beginWordSimilaritySearch();
+                    case 8 -> {
                         running = false;
                         out.println("Existing program...");
                     }
@@ -122,13 +131,14 @@ public class CLIMenu {
         out.println("\t\t\tWord Similarity Search\t\t");
         out.println("^^^^\t^^^^\t^^^^\t^^^^\t^^^^\t^^^^");
         out.println(Colours.ANSI_BLUE + "1) Provide file path for 50d word embeddings dataset");
-        out.println("2) Provide file path for output (current location: " + outputLocation + ")");
-        out.println("3) Cycle similarity search algorithm (currently using " + currentAlgo.getAlgoType() + " algorithm)");
-        out.println("4) Change number of words to show in similarity ranking (current amount: " + topWords + ")");
-        out.println(Colours.ANSI_YELLOW + "5) Enable/Disable weight details (" + showWeights + ")");
-        out.println(Colours.ANSI_GREEN + "6) Begin word similarity search");
-        out.println(Colours.ANSI_RED + "7) Quit" + Colours.ANSI_RESET);
-        out.print("Select an option [1-7]: ");
+        out.println(Colours.ANSI_BLUE + "2) Print full list of words and total count");
+        out.println("3) Provide file path for output (current location: " + outputLocation + ")");
+        out.println("4) Cycle similarity search algorithm (currently using " + currentAlgo.getAlgoType() + " algorithm)");
+        out.println("5) Change number of words to show in similarity ranking (current amount: " + topWords + ")");
+        out.println(Colours.ANSI_YELLOW + "6) Enable/Disable weight details (" + showWeights + ")");
+        out.println(Colours.ANSI_GREEN + "7) Begin word similarity search");
+        out.println(Colours.ANSI_RED + "8) Quit" + Colours.ANSI_RESET);
+        out.print("Select an option [1-8]: ");
     }
 
 
@@ -199,13 +209,42 @@ public class CLIMenu {
         if (currentModel == null) {
             out.println(LogLevel.WARN.getMessage() + "There is no dataset loaded. Use option 1) to load an appropriate file");
         } else {
+            try {
+                out.println(LogLevel.INFO.getMessage() + "wordList and weightList loaded correctly \n");
+                Scanner inputSentence = new Scanner(in);
+                out.println("Provide a single word (or sentence) to being word similarity search: ");
+                out.println(Colours.ANSI_RED + "Note: The longer the sentence, the more time it will take to process" + Colours.ANSI_RESET);
+                String sentence = inputSentence.nextLine().toLowerCase();
+                String[] sentenceSplit = sentence.split("\\s+");    // split by any whitespace (e.g. space or tab)
 
-            out.println(LogLevel.INFO.getMessage() + "wordList and weightList loaded correctly \n");
-            double[][] modelWeights = currentModel.getWeightMatrix();
-            double[] a = modelWeights[0];
-            double[] b = modelWeights[0];
-            double g = currentAlgo.calculateSimilarity(a, b);
-            out.println(g);
+                String[] wordList = currentModel.getWordList();
+
+                if (sentenceSplit.length >= sentenceLimit) {
+                    throw new Exception("Word length has exceeded");
+                }
+
+                double[][] modelWeights = currentModel.getWeightMatrix();
+
+                // TODO: refactor this to better suit sentence comparison but still allowing for single word
+                for (String word : sentenceSplit) {
+                    int wordIndex = currentModel.findWord(word);
+                    if (wordIndex == -1) {
+                        out.println(word + " is not in model wordList. Skipping...");
+                        continue;
+                    }
+                    for (int wordListIndex = 0; wordListIndex < wordList.length; wordListIndex++) {
+                        if (wordListIndex != wordIndex) {
+                            double[] targetWeights = modelWeights[wordIndex];
+                            double[] testWeights = modelWeights[wordListIndex];
+                            double similarityScore = currentAlgo.calculateSimilarity(targetWeights, testWeights);
+                            out.println(wordList[wordListIndex] + ", " + similarityScore);
+                        }
+                    }
+
+                }
+            } catch (Exception err) {
+                out.println(LogLevel.ERROR.getMessage() + "An error has occurred while performing word similarity search. " + err);
+            }
 
         }
     }

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ModelWeights {
 
@@ -79,7 +80,8 @@ public class ModelWeights {
 
     }
 
-    // TODO: optimise this similar to appendWeightMatrix
+    // I chose not to use the same method for creating array as appendWeightMatrix as i want to keep
+    // the exact number of words available in the model
     private void appendWordArray(String currentWord) {
         String[] newWordArray;
         if (wordList == null) {
@@ -119,12 +121,23 @@ public class ModelWeights {
 
     }
 
-    public void showAvailableWords() {
+    public void showAvailableWordsCount() {
         for (String word : wordList
         ) {
             System.out.println(word);
         }
         System.out.println("There are " + wordList.length + " words in the dataset");
+    }
+
+    public int findWord(String word){
+        int foundIndex = -1;
+        for (int i = 0; i < wordList.length; i++) {
+            if (Objects.equals(wordList[i], word)){
+                foundIndex = i;
+                break;
+            }
+        }
+        return foundIndex;
     }
 
 
