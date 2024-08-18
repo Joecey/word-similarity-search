@@ -24,7 +24,7 @@ First compile the `src/` directory using the following command
 Then run the program with  
 `cd out/`
 
-`java out.ie.atu.sw.Runner`
+`java ie.atu.sw.Runner`
 
 You will then be presented with options as follows:
 1) **Provide file path for 50d word embeddings dataset**: Chose the 50d .txt file to act as your model
