@@ -5,7 +5,7 @@ and a word/phrase they would like to parse. From there, the program provides the
 using an approach of the user's choosing.
 
 ## State-of-the-Art Features
-1. Along with the default 50d dataset we provide (.word-embeddings.txt), specify your own 50d dataset
+1.  Specify your own 50d dataset that will be used for similarity searching
 2. Parse a single word or an entire sentence, and the system will try to provide the best result for you
 3. Save your findings in your own specified output file and share it with your friends
 
