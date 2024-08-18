@@ -69,7 +69,6 @@ public class CLIMenu {
     private boolean showWeights = false;
     private boolean running = true;
     private int topWords = 10;
-    private final int sentenceLimit = 10;
 
     // Set ModelWeights as an object variable which we can track
     private ModelWeights currentModel = null;
@@ -156,7 +155,7 @@ public class CLIMenu {
 
         } catch (Exception err) {
             out.println(LogLevel.ERROR.getMessage() + "An issue has occurred while setting file: " + err);
-            setCurrentModel(null);
+
 
         }
     }
@@ -212,36 +211,57 @@ public class CLIMenu {
             try {
                 out.println(LogLevel.INFO.getMessage() + "wordList and weightList loaded correctly \n");
                 Scanner inputSentence = new Scanner(in);
-                out.println("Provide a single word (or sentence) to being word similarity search: ");
-                out.println(Colours.ANSI_RED + "Note: The longer the sentence, the more time it will take to process" + Colours.ANSI_RESET);
+                out.println("Provide a single word (or word sequence) to being word similarity search: ");
+                out.println(Colours.ANSI_RED + "Note: The longer the sequence, the more time it will take to process" + Colours.ANSI_RESET);
                 String sentence = inputSentence.nextLine().toLowerCase();
                 String[] sentenceSplit = sentence.split("\\s+");    // split by any whitespace (e.g. space or tab)
 
                 String[] wordList = currentModel.getWordList();
-
-                if (sentenceSplit.length >= sentenceLimit) {
-                    throw new Exception("Word length has exceeded");
-                }
-
                 double[][] modelWeights = currentModel.getWeightMatrix();
 
-                // TODO: refactor this to better suit sentence comparison but still allowing for single word
-                for (String word : sentenceSplit) {
-                    int wordIndex = currentModel.findWord(word);
-                    if (wordIndex == -1) {
-                        out.println(word + " is not in model wordList. Skipping...");
-                        continue;
-                    }
-                    for (int wordListIndex = 0; wordListIndex < wordList.length; wordListIndex++) {
+                // put this here to put a hard limit for the sentence length (i.e. context length)
+                int sentenceLimit = 50;
+                if (sentenceSplit.length >= sentenceLimit) {
+                    throw new Exception("Sentence length  of " + sentenceLimit + " words has been exceeded ");
+                }
+
+                // now we create a new results store
+                ResultsStore finalResults = new ResultsStore(topWords, outputLocation, showWeights);
+                ProgressBar bar = new ProgressBar();
+                // for each word in wordList, get an average similarity score
+                for (int wordListIndex = 0; wordListIndex < wordList.length; wordListIndex++) {
+                    double progress = Math.round(((double) wordListIndex / wordList.length) * 100.0) / 100.0;
+                    bar.showProgress(progress);
+                    int validWords = 0;
+                    double similarityScoreSum = 0.0d;
+
+                    for (String word : sentenceSplit) {
+                        // if word is not in wordList, skip the word
+                        int wordIndex = currentModel.findWord(word);
+                        if (wordIndex == -1) {
+                            continue;
+                        }
+                        // if it is, check if the current wordList word is not the current sentence word
                         if (wordListIndex != wordIndex) {
                             double[] targetWeights = modelWeights[wordIndex];
                             double[] testWeights = modelWeights[wordListIndex];
                             double similarityScore = currentAlgo.calculateSimilarity(targetWeights, testWeights);
-                            out.println(wordList[wordListIndex] + ", " + similarityScore);
+                            similarityScoreSum += similarityScore;
+                            validWords += 1;
                         }
                     }
+                    // only calculate final similarity score if validWords is greater than 0
+                    // prevents the same word showing in the event of single word search
+                    if (validWords != 0) {
+                        double averageSimilarityScore = similarityScoreSum / validWords;
 
+                        // create a new word record and attempt to add it to final results
+                        Word newWord = new Word(wordList[wordListIndex], averageSimilarityScore);
+                        finalResults.checkAndAddNewWord(newWord);
+                    }
                 }
+                // now, we display our final results
+                finalResults.getWordStore();
             } catch (Exception err) {
                 out.println(LogLevel.ERROR.getMessage() + "An error has occurred while performing word similarity search. " + err);
             }

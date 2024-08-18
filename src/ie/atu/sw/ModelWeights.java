@@ -38,7 +38,7 @@ public class ModelWeights {
 
                 // once we are all good, introduce buffer reader to read modelFile
                 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(modelFile)));
-                String currentLine = null;
+                String currentLine;
                 int count = 0;
                 System.out.println("Loading dataset..." + Colours.ANSI_RED + "(This might take a few minutes)" + Colours.ANSI_RESET);
                 while ((currentLine = br.readLine()) != null) {
@@ -80,7 +80,7 @@ public class ModelWeights {
 
     }
 
-    // I chose not to use the same method for creating array as appendWeightMatrix as i want to keep
+    // I chose not to use the same method for creating array as appendWeightMatrix as I want to keep
     // the exact number of words available in the model
     private void appendWordArray(String currentWord) {
         String[] newWordArray;
