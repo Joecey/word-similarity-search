@@ -1,5 +1,7 @@
 package ie.atu.sw;
 
+import java.io.FileWriter;
+
 public class ResultsStore {
     private Word[] wordStore;
     private final boolean showWeights;
@@ -21,6 +23,20 @@ public class ResultsStore {
     }
 
     public void generateOutputFile() {
+        try {
+            FileWriter out = new FileWriter(outputLocation);
+            for (int word = 0; word < wordStore.length; word++) {
+                String outputLine = word + ") " + wordStore[word].word() + (showWeights ? ": " + wordStore[word].similarityScore() : "") + "\n";
+                out.write(outputLine);
+
+            }
+            out.write("\n");
+            out.close();
+            System.out.println("[INFO]: File saved successfully to: " + outputLocation);
+        } catch (Exception e) {
+            throw new RuntimeException("There was an issue generating output file: " + e);
+        }
+
     }
 
     // when inserting new word, check to make sure there is space
@@ -31,17 +47,17 @@ public class ResultsStore {
             if (wordStore[placement] == null) {
                 wordStore[placement] = newWord;
                 return;
-            } else{
-                if (wordStore[placement].similarityScore() <= newWord.similarityScore()){
+            } else {
+                if (wordStore[placement].similarityScore() <= newWord.similarityScore()) {
                     Word[] newWordStore = new Word[maxWords];
 
                     // now fill int the gaps around the new placement
                     int afterNewWord = 0;
                     for (int newPosition = 0; newPosition < wordStore.length; newPosition++) {
-                        if (newPosition == placement){
+                        if (newPosition == placement) {
                             newWordStore[newPosition] = newWord;
                             afterNewWord = 1;
-                        } else{
+                        } else {
                             newWordStore[newPosition] = wordStore[newPosition - afterNewWord];
                         }
                     }

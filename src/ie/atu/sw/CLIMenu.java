@@ -66,7 +66,7 @@ public class CLIMenu {
     }
 
     private String outputLocation = "./out.txt";
-    private boolean showWeights = false;
+    private boolean showWeights = true;
     private boolean running = true;
     private int topWords = 10;
 
@@ -130,7 +130,7 @@ public class CLIMenu {
         out.println("\t\t\tWord Similarity Search\t\t");
         out.println("^^^^\t^^^^\t^^^^\t^^^^\t^^^^\t^^^^");
         out.println(Colours.ANSI_BLUE + "1) Provide file path for 50d word embeddings dataset");
-        out.println(Colours.ANSI_BLUE + "2) Print full list of words and total count");
+        out.println(Colours.ANSI_BLUE + "2) Print total count of words in model");
         out.println("3) Provide file path for output (current location: " + outputLocation + ")");
         out.println("4) Cycle similarity search algorithm (currently using " + currentAlgo.getAlgoType() + " algorithm)");
         out.println("5) Change number of words to show in similarity ranking (current amount: " + topWords + ")");
@@ -213,7 +213,9 @@ public class CLIMenu {
                 Scanner inputSentence = new Scanner(in);
                 out.println("Provide a single word (or word sequence) to being word similarity search: ");
                 out.println(Colours.ANSI_RED + "Note: The longer the sequence, the more time it will take to process" + Colours.ANSI_RESET);
-                String sentence = inputSentence.nextLine().toLowerCase();
+
+                // set sentence to lower case and remove all punctuation possible (replace with space)
+                String sentence = inputSentence.nextLine().toLowerCase().replaceAll("[^\\sa-zA-Z0-9]", "\t");
                 String[] sentenceSplit = sentence.split("\\s+");    // split by any whitespace (e.g. space or tab)
 
                 String[] wordList = currentModel.getWordList();
@@ -222,7 +224,7 @@ public class CLIMenu {
                 // put this here to put a hard limit for the sentence length (i.e. context length)
                 int sentenceLimit = 50;
                 if (sentenceSplit.length >= sentenceLimit) {
-                    throw new Exception("Sentence length  of " + sentenceLimit + " words has been exceeded ");
+                    throw new Exception("Context length  of " + sentenceLimit + " words has been exceeded ");
                 }
 
                 // now we create a new results store
@@ -262,6 +264,7 @@ public class CLIMenu {
                 }
                 // now, we display our final results
                 finalResults.getWordStore();
+                finalResults.generateOutputFile();
             } catch (Exception err) {
                 out.println(LogLevel.ERROR.getMessage() + "An error has occurred while performing word similarity search. " + err);
             }

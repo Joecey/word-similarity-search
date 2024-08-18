@@ -122,10 +122,6 @@ public class ModelWeights {
     }
 
     public void showAvailableWordsCount() {
-        for (String word : wordList
-        ) {
-            System.out.println(word);
-        }
         System.out.println("There are " + wordList.length + " words in the dataset");
     }
 

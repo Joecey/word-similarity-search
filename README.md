@@ -9,7 +9,7 @@ using an approach of the user's choosing.
 2. Parse a single word or an entire sentence, and the system will try to provide the best result for you
 3. Save your findings in your own specified output file and share it with your friends
 
-The following similarity algorithms include:
+The available algorithms include:
 - Dot Product
 - Euclidean Distance
 - Cosine Distance
@@ -22,13 +22,14 @@ First compile the `src/` directory using the following command
 `javac src/ie/atu/sw/*.java -d out/`
 
 Then run the program with  
+`cd out/`
 
-`java out/ie/atu/sw/Runner`
+`java out.ie.atu.sw.Runner`
 
 You will then be presented with options as follows:
 1) **Provide file path for 50d word embeddings dataset**: Chose the 50d .txt file to act as your model
 
-2) **Print full list of words and total count**: View the words in the chosen model and their amount
+2) **Print total count of words in model**: View total amount of words in model
 
 3) **Provide file path for output**: Specify the output file for your results
 
@@ -38,7 +39,7 @@ You will then be presented with options as follows:
    
 6) **Enable/Disable weight details (false)**: Toggle word similarity score visibility 
     
-7) **Begin word similarity search**: Input word or word sequence and start word similarity search
+7) **Begin word similarity search**: Input word sequence (e.g. apple banana cheese) and start word similarity search
     
 8) **Quit**: Exit the application
    
